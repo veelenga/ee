@@ -16,7 +16,7 @@ defmodule DNA do
   def count(strand, nucleotide) do
     unless nucleotide_valid?(nucleotide) && strand_valid?(strand), do: raise ArgumentError
 
-    strand |> Enum.count(&(nucleotide == &1))
+    Enum.count(strand, &(nucleotide == &1))
   end
 
 
@@ -32,14 +32,9 @@ defmodule DNA do
   def histogram(strand) do
     unless strand_valid?(strand), do: raise ArgumentError
 
-    Map.new(@nucleotides, fn n -> {n, count(strand, n)} end)
+    Map.new(@nucleotides, &{&1, count(strand, &1)})
   end
 
-  defp nucleotide_valid?(nucleotide) do
-    nucleotide in @nucleotides
-  end
-
-  defp strand_valid?(strand) do
-    Enum.all? strand, &nucleotide_valid?(&1)
-  end
+  defp nucleotide_valid?(nucleotide), do: nucleotide in @nucleotides
+  defp strand_valid?(strand), do: Enum.all? strand, &nucleotide_valid?/1
 end

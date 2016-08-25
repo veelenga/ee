@@ -8,7 +8,6 @@ ExUnit.configure exclude: :pending, trace: true
 defmodule DNATest do
   use ExUnit.Case
 
-  # @tag :pending
   test "empty dna string has no adenosine" do
     assert DNA.count('', ?A) == 0
   end
@@ -35,6 +34,10 @@ defmodule DNATest do
     s = 'AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC'
     expected = %{?A => 20, ?T => 21, ?C => 12, ?G => 17}
     assert DNA.histogram(s) == expected
+  end
+
+  test "counts AATAA correctly" do
+    assert DNA.histogram('AATAA') == %{?A => 4, ?T => 1, ?C => 0, ?G => 0}
   end
 
   test "histogram validates the strand" do
