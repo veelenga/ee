@@ -1,4 +1,7 @@
 defmodule Change do
+  import Map
+  import Enum, only: [sort: 1, filter: 2, reduce: 3]
+
   @doc """
     Determine the least number of coins to be given to the user such
     that the sum of the coins' value would equal the correct amount of change.
@@ -17,20 +20,32 @@ defmodule Change do
 
   @spec generate(integer, list) :: {:ok, map} | :error
   def generate(amount, values) do
-    values |> Enum.sort(&(&2 < &1)) |> generate(amount, %{})
+    values
+    |> sort
+    |> filter(&(&1 <= amount and &1 > 0))
+    |> change_for(amount)
+    |> out(values)
   end
 
-  defp generate(_, 0, acc), do: {:ok, acc}
-  defp generate([], _, _), do: :error
-  defp generate(values = [h | t], amount, acc) do
-    if amount >= h && divisible?(amount - h, values) do
-      generate(values, amount - h, Map.update(acc, h, 1, &(&1 + 1)))
-    else
-      generate(t, amount, Map.put_new(acc, h, 0))
+  defp change_for(values, amount) do
+    reduce(values, new(0..amount, &{&1, %{size: 0}}), fn(c, acc) ->
+      reduce c..amount, acc, fn(a, acc) ->
+        m = acc[a - c]
+        cond do
+          c == a or m[:size] > 0 ->
+            update! acc, a, fn _ ->
+              m |> update(c, 1, &(&1 + 1)) |> update!(:size, &(&1 + 1))
+            end
+          true -> acc
+        end
+      end
+    end) |> get(amount) |> drop([:size])
+  end
+
+  defp out(result, values) do
+    cond do
+      result == %{} -> :error
+      true -> {:ok, new(values, &{&1, 0}) |> merge(result)}
     end
-  end
-
-  defp divisible?(num, values) do
-    Enum.any?(values, &(rem(num, &1) == 0))
   end
 end

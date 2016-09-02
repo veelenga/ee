@@ -41,4 +41,22 @@ defmodule ChangeTest do
     change = %{3 => 34, 100 => 0}
     assert Change.generate(102, [3, 100]) == {:ok, change}
   end
+
+  test "returns :error when amount is negative" do
+    assert Change.generate(-25, [5, 10, 25]) == :error
+  end
+
+  test "returns :error when amount is 0" do
+    assert Change.generate(0, [5, 10, 25]) == :error
+  end
+
+  test "works if change is negative" do
+    change = %{-1 => 0, 0 => 0, 1 => 5}
+    assert Change.generate(5, [-1, 0, 1]) == {:ok, change}
+  end
+
+  test "generates another correct change for properly divisible coins" do
+    change = %{2 => 1, 3 => 1, 100 => 1}
+    assert Change.generate(105, [2, 3, 100]) == {:ok, change}
+  end
 end
