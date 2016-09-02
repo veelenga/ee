@@ -11,7 +11,7 @@ defmodule Frequency do
   def frequency(texts, workers) do
     parent = self()
     texts
-    |> Enum.chunk(length(texts) / workers |> Float.ceil |> trunc)
+    |> chunk(workers)
     |> Enum.map(fn subtext ->
         spawn_link fn ->
           send parent, freq(subtext)
@@ -22,6 +22,13 @@ defmodule Frequency do
           Map.merge(acc, result, fn(_, v1, v2) -> v1 + v2 end)
         end
       end)
+  end
+
+  defp chunk(texts, by) do
+    text = Enum.join(texts)
+    size = text |> String.length |> div(by)
+
+    Regex.scan(~r/.{1,#{size + 1}}/s, text)
   end
 
   defp freq(text) do

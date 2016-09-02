@@ -59,8 +59,13 @@ defmodule FrequencyTest do
   end
 
   test "text per worker" do
-    assert freq(["foo", "bar", "baz"], 3)
+    assert freq(["foo", "bar", "baz"], 8)
       == %{"a" => 2, "b" => 2, "r" => 1, "f" => 1, "o" => 2, "z" => 1}
+  end
+
+  test "text is correctly processed by any amount of workers" do
+    texts = ["foo", "bar", "baz"]
+    assert freq(texts, 2) == freq(texts, 3)
   end
 
   test "no texts mean no letters" do
