@@ -7,14 +7,19 @@
 
 (defun perfect-numbers (n)
   (remove-if-not
-   (lambda (x) (perfect-number? x)) (number-sequence 1 n)))
+   (lambda (x) (perfect-number? x)) (number-sequence 2 n)))
 
 (defun perfect-number? (n)
   (= n (apply '+ (factors-of n))))
 
 (defun factors-of (n)
-  (remove-if-not
-   (lambda (x) (zerop (% n x)))(number-sequence 1 (/ n 2))))
+  (loop with factors = (list)
+        for i in (number-sequence 2 (1+ (isqrt n)))
+        do
+        (when (zerop (% n i))
+          (push i factors)
+          (let ((d (/ n i))) (when (not (= i d)) (push d factors))))
+        finally return (-uniq (push 1 factors))))
 
 (provide 'perfect-numbers)
 ;;; perfect-numbers.el ends here
