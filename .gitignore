@@ -3,3 +3,5 @@
 .lein-*
 .stack-work
 *.cabal
+*.tern-port
+*.solution.json
